@@ -14,11 +14,13 @@ from sqlalchemy import LargeBinary
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID, JSONB, INET
 from sqlalchemy.orm import RelationshipProperty, Mapper
 from sqlalchemy.sql.type_api import TypeEngine
+
 from websauna.system.crud import Resource
 from websauna.system.form.colander import PropertyAwareSQLAlchemySchemaNode, TypeOverridesHandling
 from websauna.system.form.sqlalchemy import get_uuid_vocabulary_for_model, UUIDModelSet, UUIDForeignKeyValue
 from websauna.system.form.widgets import FriendlyUUIDWidget
 from websauna.system.http import Request
+from websauna.system.model import columns
 
 from websauna.compat.typing import List
 from websauna.compat.typing import Tuple
@@ -146,7 +148,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
             # Handled by relationship mapper
             return TypeOverridesHandling.drop, {}
 
-        elif isinstance(column_type, PostgreSQLUUID):
+        elif isinstance(column_type, (PostgreSQLUUID, columns.UUID)):
 
             # UUID's cannot be edited
             if mode in (EditMode.add, EditMode.edit):
@@ -154,7 +156,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
 
             # But let's show them
             return fields.UUID(), dict(missing=colander.drop, widget=FriendlyUUIDWidget(readonly=True))
-        elif isinstance(column_type, JSONB):
+        elif isinstance(column_type, (JSONB, columns.JSONB)):
 
             # Can't edit JSON
             if mode in (EditMode.add, EditMode.edit):
@@ -167,7 +169,7 @@ class DefaultSQLAlchemyFieldMapper(ColumnToFieldMapper):
         elif isinstance(column_type, Geometry):
             # Can't edit geometry
             return TypeOverridesHandling.drop, {}
-        elif isinstance(column_type, INET):
+        elif isinstance(column_type, (INET, columns.INET)):
             return colander.String(), {}
         else:
             # Default mapping / unknown, let the parent handle
