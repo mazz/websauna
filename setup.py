@@ -63,7 +63,7 @@ setup(
         # SQLAlchemy and database support
         "alembic",
         "colanderalchemy",
-        "psycopg2",
+        "psycopg2-binary",
         "pyramid_retry",
         "pyramid_tm",
         "sqlalchemy",
